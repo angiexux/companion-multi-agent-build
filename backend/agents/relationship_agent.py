@@ -9,7 +9,9 @@ from models import CharacterProfile, RelationshipAgentOutput
 
 load_dotenv()
 
-_SYSTEM_PROMPT = (Path(__file__).parent.parent / "prompts" / "relationship_system.txt").read_text()
+_SYSTEM_PROMPT = (Path(__file__).parent.parent / "prompts" / "relationship_system.txt").read_text(
+    encoding="utf-8"
+)
 _client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
 
 

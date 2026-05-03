@@ -11,7 +11,9 @@ from character.manager import character_dir
 
 load_dotenv()
 
-_SYSTEM_PROMPT = (Path(__file__).parent.parent / "prompts" / "voice_system.txt").read_text()
+_SYSTEM_PROMPT = (Path(__file__).parent.parent / "prompts" / "voice_system.txt").read_text(
+    encoding="utf-8"
+)
 
 _gemini = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
 _eleven = ElevenLabs(api_key=os.environ["ELEVENLABS_API_KEY"])
