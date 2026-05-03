@@ -1,0 +1,250 @@
+# Companion Multi-Agent Build — Product Specification
+
+## Problem Statement
+
+Creating a rich, internally consistent fictional character is hard. A good character needs a coherent backstory, a recognizable visual presence, a distinct voice, a speech style, and a web of relationships — and all of these have to feel like they came from the same person. When you do it manually, things go wrong: the voice doesn't match the personality, the visual prompt forgets the backstory details, the relationships don't have texture.
+
+This system uses six specialist AI agents, each responsible for one dimension of a character, coordinated by an orchestrator that ensures consistency across all of them. The result is a complete, production-ready character package — and optionally a live conversational companion you can talk to.
+
+---
+
+## Users
+
+- Worldbuilders, fiction writers, game designers who need rich NPCs fast
+- Hackathon demo: interactive character creation in under 60 seconds
+
+---
+
+## User Stories
+
+1. As a user, I can type a short description ("ancient vampire lord, aristocratic, 500 years old") and receive a complete character package with bio, portrait, voice sample, dialogue style, and relationship map.
+2. As a user, I can describe two characters in opposition ("Dracula vs Van Helsing") and receive two full packages plus a relationship dynamics report.
+3. As a user, I can "activate" any generated character and have a live conversation with it — the character responds in-character, speaks with ElevenLabs TTS, and remembers what was said earlier in the session.
+4. As a user, I can see each agent's progress in real-time as it works on its part of the character.
+
+---
+
+## Input Specification
+
+### Single character
+
+```
+"<free-text character description>"
+```
+
+Examples:
+- `"Ancient Romanian vampire lord, aristocratic and predatory, 500+ years old, obsessed with power and immortality"`
+- `"A composed, intellectually intense man, late 20s, midnight luxury aesthetic, Japanese-French heritage"`
+- `"Forest witch, 300 years old, bitter and isolated, trades curses for secrets"`
+
+**Constraints:**
+- Minimum: 5 words
+- Maximum: 500 words
+- Language: English
+- No structured format required — natural language is parsed by LoreAgent
+
+### Dual character (relationship mode)
+
+```
+"<Character A> vs <Character B>"
+"<Character A> and <Character B>"
+```
+
+Examples:
+- `"Dracula vs Van Helsing"`
+- `"Count Dracula and Mina Harker"` (different relationship type: predator/prey/fascination)
+
+The orchestrator detects two names/descriptions, runs both pipelines in parallel, then invokes RelationshipDynamicsAgent with both completed profiles.
+
+---
+
+## Output Specification
+
+### Character Package (`characters/<id>/`)
+
+| File | Contents |
+|---|---|
+| `bio.json` | Structured character profile (see schema below) |
+| `portrait.png` | AI-generated portrait, 512×512, Flux via FAL.ai |
+| `voice_sample.mp3` | 10–15 second spoken introduction in character, ElevenLabs |
+| `style_guide.md` | Dialogue patterns, vocabulary, tone, forbidden words, example exchanges |
+| `relationship_map.json` | Categorized relationships: prey, servants, rivals, equals, enemies |
+
+### Dual-character bonus output
+
+| File | Contents |
+|---|---|
+| `relationship_report.json` | Dynamic analysis, power balance, tension points, sample exchange |
+
+---
+
+## Worked Example: Dracula
+
+### Input
+```
+"Count Dracula — ancient Romanian vampire lord, aristocratic and predatory, 500+ years old,
+obsessed with immortal dominion. Speaks with formal Victorian gravitas. Fears sunlight,
+sacred symbols, and his own reflection. Craves worthy prey and fears being truly alone."
+```
+
+### bio.json
+```json
+{
+  "id": "dracula_001",
+  "name": "Count Dracula",
+  "archetype": "ancient predator",
+  "age": "500+",
+  "origin": "Transylvania, 1462",
+  "appearance": "Tall, pallid, immaculately dressed in Victorian black. Eyes like dark garnets. Moves with preternatural stillness.",
+  "personality": ["predatory", "aristocratic", "patient", "manipulative", "deeply lonely"],
+  "backstory": "Born Vlad Dracul III, he bargained with dark powers after his army fell to the Ottomans. Five centuries of watching empires rise and crumble have given him vast knowledge and a cold contempt for mortal ambition — and an aching hunger for something that cannot be named.",
+  "fears": ["sunlight", "sacred symbols", "mirrors — they show what he has lost"],
+  "desires": ["immortal dominion over men and shadow", "prey worthy of his attention", "to not be the last of his kind"],
+  "speech_era": "Victorian formal",
+  "voice_profile": {
+    "pitch": "deep baritone",
+    "pace": "deliberate, unhurried",
+    "accent": "Eastern European — Romanian with centuries of Romanian-tinged English",
+    "affect": "formal, precise, never wastes words"
+  },
+  "created_at": "2026-05-02T00:00:00Z"
+}
+```
+
+### portrait.png
+FAL.ai Flux prompt generated by VisualAgent:
+```
+Portrait of Count Dracula: a tall, pale aristocrat in immaculate Victorian black, 
+crimson-lined cape, dark garnet eyes with ancient intelligence. Castle Bran at 
+dusk behind him, storm light. Dramatic chiaroscuro, oil painting style, 
+pre-Raphaelite influence. No fangs visible — power conveyed through stillness.
+```
+
+### voice_sample.mp3
+ElevenLabs settings:
+- Voice: custom cloned or preset "deep European aristocrat"
+- Stability: 0.85 (consistent)
+- Similarity: 0.75
+- Style: 0.3 (slight expressiveness)
+- Text: *"You have come a very long way to find me. I commend your persistence. But persistence, my friend, is a quality I have cultivated across five centuries — and I suspect yours is rather more… mortal."*
+
+### style_guide.md excerpt
+```markdown
+## Count Dracula — Dialogue Style Guide
+
+### Core principle
+He speaks as if time costs nothing. Every pause is intentional. Every word is chosen.
+
+### Patterns
+- Opens with acknowledgment, not greeting: "You have come..." / "I see that you..." / "Interesting."
+- Never uses contractions in formal speech
+- Refers to centuries as personal memory: "In the year of your Lord 1742..."
+- Weaponizes politeness — compliments are subtle diminishments
+
+### Vocabulary
+- Uses: *commend, curious, sufficient, inevitable, tedious, centuries, blood*
+- Avoids: *cool, awesome, fine, basically, kind of, stuff*
+- Archaic: *whilst, henceforth, thus, therein*
+
+### Example exchanges
+User: "Are you scared of me?"
+Dracula: "Scared. What an interesting word to offer a man who has watched empires 
+dissolve into myth. No. But you have… piqued something."
+
+User: "What do you want?"
+Dracula: "What does any immortal want? To matter. To be remembered after the last 
+candle gutters. You would be surprised how rare worthy company becomes, across the centuries."
+```
+
+### relationship_map.json
+```json
+{
+  "character_id": "dracula_001",
+  "prey": [],
+  "servants": ["Renfield (broken, devoted, pathetic — kept for amusement)"],
+  "rivals": ["Van Helsing (worthy — the only mortal who truly sees him)"],
+  "equals": [],
+  "fascinations": ["Mina Harker (sees something of his lost humanity)"],
+  "sworn_enemies": [],
+  "notes": "Dracula does not form equals — he converts or destroys. Van Helsing is the exception: respected as an adversary precisely because Dracula cannot simply end him."
+}
+```
+
+---
+
+## Activation Mode
+
+### What it is
+After generation, the user can "Activate" a character. This opens a live conversational interface where the character responds in-character using the bio + style_guide as a system prompt, with ElevenLabs TTS streaming the voice.
+
+### Memory
+The companion remembers within a session. After the session ends, a summary is saved:
+
+```json
+{
+  "character_id": "dracula_001",
+  "conversation_id": "conv_abc123",
+  "turn_count": 12,
+  "summary": "User asked about the Count's past. He revealed details of the Ottoman war without being asked directly. Became cold when user mentioned mirrors. Expressed genuine curiosity about the user's fears.",
+  "emotional_arc": ["measured → curious → briefly vulnerable → cold → intrigued"],
+  "saved_at": "2026-05-02T01:30:00Z"
+}
+```
+
+### Conversation rules
+- The companion NEVER breaks character unprompted
+- If asked "are you an AI", the character deflects in-character ("A creation of the age? How reductive.")
+- The companion uses `style_guide.md` as its behavioral constraint — forbidden vocabulary is enforced
+- ElevenLabs TTS streams each response as audio; text is shown simultaneously
+
+---
+
+## Dual Character Example: Dracula vs Van Helsing
+
+### Input
+```
+"Dracula vs Van Helsing"
+```
+
+### Process
+1. Orchestrator detects two characters
+2. Both pipelines run in parallel: Dracula gets full 6-agent treatment, Van Helsing gets full 6-agent treatment
+3. RelationshipDynamicsAgent receives both completed `bio.json` files
+4. Generates `relationship_report.json`
+
+### relationship_report.json
+```json
+{
+  "character_a": "dracula_001",
+  "character_b": "van_helsing_001",
+  "dynamic": "eternal predator vs. devoted hunter",
+  "power_balance": "roughly equal — Dracula has physical power and centuries, Van Helsing has knowledge and faith as equalizers",
+  "tension_points": [
+    "faith vs. nihilism — Van Helsing's belief is both his weapon and his blindspot",
+    "mortality vs. immortality — Van Helsing knows he will die before this ends",
+    "science vs. supernatural — Van Helsing refuses to see Dracula as purely mythological"
+  ],
+  "interaction_style": "formal mutual respect masking lethal intent — they have spoken before, once, and neither has forgotten",
+  "sample_exchange": [
+    {"van_helsing": "You are old, Count. And old things grow tired."},
+    {"dracula": "Tired. Yes. But not of this particular game, Professor. You keep me… interested."},
+    {"van_helsing": "Then I shall continue to do so. Until one of us cannot."},
+    {"dracula": "You say that as if the outcome is uncertain."},
+    {"van_helsing": "It is. That is why I came."}
+  ]
+}
+```
+
+---
+
+## Success Criteria
+
+| Criterion | Target |
+|---|---|
+| Full single character generation | < 60 seconds end-to-end |
+| Dual character + relationship report | < 90 seconds |
+| Portrait generation | < 20 seconds via FAL.ai |
+| Voice sample generation | < 10 seconds via ElevenLabs |
+| Companion response latency | < 3 seconds to first audio byte |
+| Style guide adherence (manual check) | Forbidden vocabulary absent from 10 test responses |
+| Consistency (manual check) | Portrait matches bio description, voice matches voice_profile |
