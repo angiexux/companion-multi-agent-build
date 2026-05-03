@@ -94,6 +94,24 @@ class DialogueOutput(BaseModel):
     must_use_words: list[str]
     forbidden_words: list[str]
     specialist_terms: list[str]
-    emotional_range: dict[str, str]   # {"curiosity": "...", "anger": "...", ...}
+    emotional_range: dict[str, str]
     example_exchanges: list[ExampleExchange]
     introduction_text: str
+
+
+class RelationshipAgentOutput(BaseModel):
+    relationship_map_a: RelationshipMap
+    relationship_map_b: RelationshipMap | None = None
+    relationship_report: RelationshipReport | None = None
+
+
+class ConsistencyNote(BaseModel):
+    severity: str   # "warning" | "error"
+    field: str      # which artifact had the issue
+    message: str
+
+
+class SynthesisOutput(BaseModel):
+    consistent: bool
+    notes: list[ConsistencyNote]
+    summary: str
