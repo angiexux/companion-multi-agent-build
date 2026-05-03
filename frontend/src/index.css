@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    @apply h-full bg-void-900 text-zinc-100 antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { @apply bg-void-800; }
+  ::-webkit-scrollbar-thumb { @apply bg-void-500 rounded-full; }
+}
