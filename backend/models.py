@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 
 
 class VoiceProfile(BaseModel):
@@ -66,3 +65,19 @@ class CharacterManifest(BaseModel):
     files: dict[str, str]
     consistency_notes: list[dict]
     generated_at: str
+
+
+class ExampleExchange(BaseModel):
+    user: str
+    character: str
+
+
+class DialogueOutput(BaseModel):
+    core_principle: str
+    patterns: list[str]
+    must_use_words: list[str]
+    forbidden_words: list[str]
+    specialist_terms: list[str]
+    emotional_range: dict[str, str]   # {"curiosity": "...", "anger": "...", ...}
+    example_exchanges: list[ExampleExchange]
+    introduction_text: str

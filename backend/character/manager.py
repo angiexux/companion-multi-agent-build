@@ -24,6 +24,12 @@ def load_bio(character_id: str) -> CharacterProfile:
     return CharacterProfile.model_validate_json(path.read_text(encoding="utf-8"))
 
 
+def save_style_guide(character_id: str, markdown: str) -> Path:
+    path = character_dir(character_id) / "style_guide.md"
+    path.write_text(markdown, encoding="utf-8")
+    return path
+
+
 def save_manifest(manifest: CharacterManifest) -> Path:
     path = character_dir(manifest.character_id) / "manifest.json"
     path.write_text(manifest.model_dump_json(indent=2), encoding="utf-8")
