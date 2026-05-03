@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-from models import CharacterProfile, CharacterManifest
+from models import CharacterProfile, CharacterManifest, VoiceConfig
 
 _CHARACTERS_DIR = Path(os.environ.get("CHARACTERS_DIR", "./characters"))
 
@@ -22,6 +22,12 @@ def save_bio(profile: CharacterProfile) -> Path:
 def load_bio(character_id: str) -> CharacterProfile:
     path = _CHARACTERS_DIR / character_id / "bio.json"
     return CharacterProfile.model_validate_json(path.read_text(encoding="utf-8"))
+
+
+def save_voice_config(character_id: str, config: VoiceConfig) -> Path:
+    path = character_dir(character_id) / "voice_profile.json"
+    path.write_text(config.model_dump_json(indent=2), encoding="utf-8")
+    return path
 
 
 def save_style_guide(character_id: str, markdown: str) -> Path:

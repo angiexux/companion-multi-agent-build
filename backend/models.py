@@ -67,6 +67,22 @@ class CharacterManifest(BaseModel):
     generated_at: str
 
 
+class VisualPrompt(BaseModel):
+    prompt: str
+    negative_prompt: str
+
+
+class VoiceConfig(BaseModel):
+    voice_id: str
+    voice_name: str
+    model_id: str
+    stability: float
+    similarity_boost: float
+    style: float
+    use_speaker_boost: bool
+    reasoning: str          # why this voice was chosen — helps debug
+
+
 class ExampleExchange(BaseModel):
     user: str
     character: str
